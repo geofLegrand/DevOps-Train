@@ -79,37 +79,37 @@ resource "aws_security_group" "sg-server" {
   }
 }
 
-resource "aws_security_group" "sg-server" {
+# resource "aws_security_group" "sg-server" {
 
-  name        = "my_ping_secu"
-  description = "This sg help me to connect my server"
+#   name        = "my_ping_secu"
+#   description = "This sg help me to connect my server"
 
-  ingress { // corresponding to inbound into aws console
-    description = "open the icmp"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+#   ingress { // corresponding to inbound into aws console
+#     description = "open the icmp"
+#     from_port   = 0
+#     to_port     = 0
+#     protocol    = "tcp"
+#     cidr_blocks = ["0.0.0.0/0"]
 
-  }
-  ingress { // corresponding to inbound into aws console
-    description = "open the http"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+#   }
+#   ingress { // corresponding to inbound into aws console
+#     description = "open the http"
+#     from_port   = 80
+#     to_port     = 80
+#     protocol    = "tcp"
+#     cidr_blocks = ["0.0.0.0/0"]
 
-  }
+#   }
 
-  egress { // corresponding to outbound into aws console
-    description = "go to any ip address"
-    from_port   = 0
-    to_port     = 0
-    protocol    = -1 // corresponding to all traffic
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+#   egress { // corresponding to outbound into aws console
+#     description = "go to any ip address"
+#     from_port   = 0
+#     to_port     = 0
+#     protocol    = -1 // corresponding to all traffic
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
 
-  tags = {
-    Name ="dev_security_grou"
-  }
-}
+#   tags = {
+#     Name ="dev_security_grou"
+#   }
+# }

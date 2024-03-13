@@ -6,3 +6,9 @@ variable "size" {
   default = "t2.micro"
 }
 
+variable "zone_id" {
+  
+}
+variable "name" {
+  
+}

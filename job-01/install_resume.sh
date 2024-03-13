@@ -21,5 +21,7 @@ mv /home/ec2-user/website.jpg ${_path}profile-img.jpg
 mv ${_path}hero-bg.jpg   ${_path}hero-bg0.jpg
 cp ${_path}profile-img.jpg ${_path}hero-bg.jpg
 
+exit (0)
+
  
 

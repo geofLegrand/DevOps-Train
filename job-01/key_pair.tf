@@ -6,7 +6,7 @@ resource "tls_private_key" "my_ec2_key" {
 
 # Create aws key pair component in aws
 resource "aws_key_pair" "ec2_key" {
-  key_name = "ec2_key_pair"
+  key_name = "ec2_key_pair2"
   public_key = tls_private_key.my_ec2_key.public_key_openssh
 }
 
