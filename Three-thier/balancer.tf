@@ -5,7 +5,17 @@ resource "aws_lb" "my_lb" {
     internal = false
     load_balancer_type = "application"
     security_groups = [aws_security_group.lb_sg.id]
-    subnets = [ aws_subnet.public_subnets_az1.id,aws_subnet.public_subnets_az2.id ]
+
+    dynamic "subnet_mapping" {
+       for_each = aws_subnet.public_subnets_az
+        content {
+            subnet_id = subnet_mapping.value.id
+        }
+      
+    }
+
+    depends_on = [ aws_subnet.public_subnets_az ]
+   // subnets = [ aws_subnet.public_subnets_az1.id,aws_subnet.public_subnets_az2.id ]
 }
 
 resource "aws_lb_target_group" "my_lb_tg" {
@@ -41,14 +51,9 @@ resource "aws_lb_listener" "my_lb_lister" {
 
 resource "aws_lb_target_group_attachment" "my_server_1" {
     # availability_zone = var.availability_zone[0]
+    count = length(var.private_subnet_blocks)
     target_group_arn = aws_lb_target_group.my_lb_tg.arn
-    target_id = aws_instance.web_server_1.id
+    target_id = aws_instance.web_server[count.index].id
   
 }
 
-resource "aws_lb_target_group_attachment" "my_server_2" {
-    # availability_zone = var.availability_zone[1]
-    target_group_arn = aws_lb_target_group.my_lb_tg.arn
-    target_id = aws_instance.web_server_2.id
-  
-}

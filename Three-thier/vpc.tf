@@ -24,7 +24,7 @@ resource "aws_internet_gateway" "my_igw" {
 }
 
 // public route table
-resource "aws_route_table" "public-route_table" {
+resource "aws_route_table" "public_route_table" {
    vpc_id = aws_vpc.my-aws-vpc.id
    route {
         cidr_block = "0.0.0.0/0"
@@ -32,52 +32,50 @@ resource "aws_route_table" "public-route_table" {
    }
 }
 
-// associate my private subnet to route table
+// associate my publics subnets to principal route table
 resource "aws_route_table_association" "ass_sb_pub_az1" {
-    subnet_id = aws_subnet.public_subnets_az1.id
-    route_table_id = aws_route_table.public-route_table.id
-    
-}
-// associate my private subnet to route table
-resource "aws_route_table_association" "ass_sb_pub_az2" {
-    subnet_id = aws_subnet.public_subnets_az2.id
-    route_table_id = aws_route_table.public-route_table.id
+  count = length(var.public_subnet_blocks)
+    subnet_id = aws_subnet.public_subnets_az[count.index].id
+    route_table_id = aws_route_table.public_route_table.id
     
 }
 
 
-############################# FOR AZ 1 #################################################
+############################# FOR AZ1 AZ2 ...... AZn #################################################
 
-resource "aws_eip" "eip_1" {
-    depends_on = [ aws_internet_gateway.my_igw ]
-   
-
+resource "aws_eip" "eip" {
+  count = length(var.public_subnet_blocks)
+  depends_on = [ aws_internet_gateway.my_igw ]
 }
 
-// One Public subnet
-resource "aws_subnet" "public_subnets_az1" {
-    # get the number of public subnets blocks you have
-  cidr_block              = var.public_subnet_blocks[0] # define the cidr block per public subnet
-  availability_zone       = var.availability_zone[0]    # Assign the availability zone to each subnet
-  vpc_id                  = aws_vpc.my-aws-vpc.id                 # Connect your subnets to your VPC
-  map_public_ip_on_launch = true                                  # Allow my subnet access to internet
+//  Public subnets
+resource "aws_subnet" "public_subnets_az" {
+    
+  count = length(var.public_subnet_blocks) 
+  cidr_block              = var.public_subnet_blocks[count.index] 
+  availability_zone       = var.availability_zone[count.index]    
+  vpc_id                  = aws_vpc.my-aws-vpc.id                
+  map_public_ip_on_launch = true                                  
 }
 
 
-// One Private subnet
-resource "aws_subnet" "private_subnets_az1" {
-  cidr_block        = var.private_subnet_blocks[0] # define the cidr block per subnet
-  availability_zone = var.availability_zone[0]     # Assign the availability zone to each subnet
-  vpc_id            = aws_vpc.my-aws-vpc.id                  # Connect your subnets to your VPC
+// Private subnets
+resource "aws_subnet" "private_subnets_az" {
+  count = length(var.private_subnet_blocks)
+  cidr_block        = var.private_subnet_blocks[count.index] 
+  availability_zone = var.availability_zone[count.index]     
+  vpc_id            = aws_vpc.my-aws-vpc.id                 
 
 }
 
 // Public nat Gateway
-resource "aws_nat_gateway" "nat_gateway-pub-az1" {
+resource "aws_nat_gateway" "nat_gateway_pub_az" {
 
-  subnet_id = aws_subnet.public_subnets_az1.id
+  count = length(var.public_subnet_blocks)
 
-  allocation_id = aws_eip.eip_1.id
+  subnet_id = aws_subnet.public_subnets_az[count.index].id
+
+  allocation_id = aws_eip.eip[count.index].id
 
   depends_on = [ aws_internet_gateway.my_igw ]
 
@@ -85,74 +83,20 @@ resource "aws_nat_gateway" "nat_gateway-pub-az1" {
 
 
 // private route table
-resource "aws_route_table" "route_table_az1" {
+resource "aws_route_table" "route_table_az" {
+  count = length(var.public_subnet_blocks)
    vpc_id = aws_vpc.my-aws-vpc.id
    route {
         cidr_block = "0.0.0.0/0"
-        gateway_id = aws_nat_gateway.nat_gateway-pub-az1.id
+        gateway_id = aws_nat_gateway.nat_gateway_pub_az[count.index].id
    }
 }
 
 // associate my private subnet to route table
-resource "aws_route_table_association" "priv_rt_az1" {
-    subnet_id = aws_subnet.private_subnets_az1.id
-    route_table_id = aws_route_table.route_table_az1.id
-    
-}
-
-
-############################# FOR AZ 2 #################################################
-
-resource "aws_eip" "eip_2" {
-    depends_on = [ aws_internet_gateway.my_igw ]
-   
-
-}
-
-
-// One Public subnet
-resource "aws_subnet" "public_subnets_az2" {
-    # get the number of public subnets blocks you have
-  cidr_block              = var.public_subnet_blocks[1] # define the cidr block per public subnet
-  availability_zone       = var.availability_zone[1]    # Assign the availability zone to each subnet
-  vpc_id                  = aws_vpc.my-aws-vpc.id                 # Connect your subnets to your VPC
-  map_public_ip_on_launch = true                                  # Allow my subnet access to internet
-}
-
-
-// One Private subnet
-resource "aws_subnet" "private_subnets_az2" {
-  cidr_block        = var.private_subnet_blocks[1] # define the cidr block per subnet
-  availability_zone = var.availability_zone[1]     # Assign the availability zone to each subnet
-  vpc_id            = aws_vpc.my-aws-vpc.id                  # Connect your subnets to your VPC
-
-}
-
-// Public nat Gateway
-resource "aws_nat_gateway" "nat_gateway-pub-az2" {
-
-  subnet_id = aws_subnet.public_subnets_az2.id
-
-  allocation_id = aws_eip.eip_2.id
-
-  depends_on = [ aws_internet_gateway.my_igw ]
-
-}
-
-
-// private route table
-resource "aws_route_table" "route_table_az2" {
-   vpc_id = aws_vpc.my-aws-vpc.id
-   route {
-        cidr_block = "0.0.0.0/0"
-        gateway_id = aws_nat_gateway.nat_gateway-pub-az2.id
-   }
-}
-
-// associate my private subnet to route table
-resource "aws_route_table_association" "priv_rt_az2" {
-    subnet_id = aws_subnet.private_subnets_az2.id
-    route_table_id = aws_route_table.route_table_az2.id
+resource "aws_route_table_association" "priv_rt_az" {
+  count = length(var.private_subnet_blocks)
+    subnet_id = aws_subnet.private_subnets_az[count.index].id
+    route_table_id = aws_route_table.route_table_az[count.index].id
     
 }
 
