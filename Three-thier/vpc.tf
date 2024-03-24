@@ -6,7 +6,7 @@ resource "aws_vpc" "my-aws-vpc" {
 
 
   tags = {
-    Name : "Devops-Train"
+    Name : "My-Devops-Train"
     env : "Devops-Train-vpc"
 
   }
@@ -32,7 +32,7 @@ resource "aws_route_table" "public_route_table" {
 
 // associate my publics subnets to principal route table
 resource "aws_route_table_association" "ass_sb_pub_az1" {
-  count = length(var.public_subnet_blocks)
+    count = length(var.public_subnet_blocks)
     subnet_id = aws_subnet.public_subnets_az[count.index].id
     route_table_id = aws_route_table.public_route_table.id
     

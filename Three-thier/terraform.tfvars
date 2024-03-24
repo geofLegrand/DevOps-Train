@@ -1,10 +1,10 @@
-vpc_cidr_bloks = "10.20.20.0/26"
+vpc_cidr_bloks = "10.0.0.0/16"
 
-private_subnet_blocks = ["10.20.20.0/28", "10.20.20.16/28"]
+private_subnet_blocks = ["10.0.1.0/24", "10.0.3.0/24","10.0.5.0/24"]
 
-public_subnet_blocks = ["10.20.20.32/28", "10.20.20.48/28"]
+public_subnet_blocks = ["10.0.2.0/24", "10.0.4.0/24","10.0.6.0/24"]
 
-availability_zone = ["us-east-1a", "us-east-1b"]
+availability_zone = ["us-east-1a", "us-east-1b", "us-east-1c"]
 
 ami = "ami-06a0cd9728546d178"
 
